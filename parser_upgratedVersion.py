@@ -1,5 +1,3 @@
-#Повторяющаюся часть с подключением к webdriver и куазанием части пути так же можно обернуть в функции. ДОДЕЛАТЬ!
-
 '''
 КОГДА ИЗМЕНЯЕТЕ XPath смотрите, чтобы шаблон совпадал с исходным кодом 
 (последовательность тегов не должна отличаться)
@@ -46,8 +44,10 @@ path_to_save_dir = r'/home/gleb/Desktop/parser/Mordovia/attacking/'
 global game_counter
 game_counter = 3
 
-def parser_attacking():
-    browser = webdriver.Chrome(executable_path = path_to_driver)
+
+def path_to_stats():
+
+	browser = webdriver.Chrome(executable_path = path_to_driver)
     browser.get(site)
     browser.maximize_window()
     browser.implicitly_wait(10)
@@ -79,14 +79,16 @@ def parser_attacking():
     stats = browser.find_element_by_xpath('//*[@id="detail_0_team_tab_stats"]')
     stats.click()
     time.sleep(2)
-
-    dropdown_type = browser.find_element_by_xpath('//*[@id="detail_0_team_stats"]/div/div/div/main/div[3]/div[1]/div[2]/div[1]/div[1]/div')
+	
+	dropdown_type = browser.find_element_by_xpath('//*[@id="detail_0_team_stats"]/div/div/div/main/div[3]/div[1]/div[2]/div[1]/div[1]/div')
     dropdown_type.click()
 
     dropdown_type_update = browser.find_element_by_xpath('//*[@id="detail_0_team_stats"]/div/div/div/main/div[3]/div[1]/div[2]/div[1]/div[1]/div[2]/div[1]/div[3]')
     dropdown_type_update.click()
     time.sleep(2)
-
+	
+	
+	
     '''
     dropdown_season = browser.find_element_by_xpath('//*[@id="detail_0_team_stats"]/div/div/div/main/div[3]/div[1]/div[1]/div[2]/div/div')
     dropdown_season.click()
@@ -104,9 +106,10 @@ def parser_attacking():
     browser.execute_script("arguments[0].style.visibility='hidden'", header2)
     browser.execute_script("arguments[0].style.display='none'", header3)
     browser.execute_script("arguments[0].style.display='none'", header4)
-
-
-    #Используется, если выгрузка сломалась и нужно начинать с середины
+	
+	
+def scroller():
+	#Используется, если выгрузка сломалась и нужно начинать с середины
     global game_counter
     if game_counter > 12:
         string_index = 3
@@ -114,6 +117,14 @@ def parser_attacking():
             transport_element = browser.find_element_by_xpath('//*[@id="detail_0_team_stats"]/div/div/div/main/div[3]/div[2]/div/table/tbody/tr['+str(string_index)+']/td[4]/span/em')
             browser.execute_script("arguments[0].scrollIntoView();", transport_element)
             string_index += 1
+			
+	
+
+def parser_attacking():
+
+	path_to_stats()
+	
+    scroller()
 
     while game_counter <= 100:
         game = browser.find_element_by_xpath('//*[@id="detail_0_team_stats"]/div/div/div/main/div[3]/div[2]/div/table/tbody/tr['+str(game_counter)+']')
@@ -168,74 +179,10 @@ def parser_attacking():
 
 def parser_defending():
     
-    browser = webdriver.Chrome(executable_path = path_to_driver)
-    browser.get(site)
-    browser.maximize_window()
-    browser.implicitly_wait(10)
-
-    username = browser.find_element_by_id('login_username')
-    username.send_keys(str(login_username))
-
-    password = browser.find_element_by_id('login_password')
-    password.send_keys(str(login_password))
-    password.send_keys(Keys.RETURN)
-    
-    country = browser.find_element_by_xpath(country_xpath)
-    time.sleep(4)
-    county.click()
-    time.sleep(2)
-    
-    league = browser.find_element_by_xpath(league_xpath)
-    league.click()
-    time.sleep(2)
-    
-    region = browser.find_element_by_xpath(region_xpath)
-    region.click()
-    time.sleep(2)
-    
-    team = browser.find_element_by_xpath(team_xpath)
-    team.click()
-    time.sleep(2)
-    
-    stats = browser.find_element_by_xpath('//*[@id="detail_0_team_tab_stats"]')
-    stats.click()
-    time.sleep(2)
-
-    dropdown_type = browser.find_element_by_xpath('//*[@id="detail_0_team_stats"]/div/div/div/main/div[3]/div[1]/div[2]/div[1]/div[1]/div')
-    dropdown_type.click()
-
-    time.sleep(2)
-    dropdown_type_update = browser.find_element_by_xpath('//*[@id="detail_0_team_stats"]/div/div/div/main/div[3]/div[1]/div[2]/div[1]/div[1]/div[2]/div[1]/div[4]')
-    dropdown_type_update.click()
-    time.sleep(2)
-    
-    '''
-    dropdown_season = browser.find_element_by_xpath('//*[@id="detail_0_team_stats"]/div/div/div/main/div[3]/div[1]/div[1]/div[2]/div/div')
-    dropdown_season.click()
-    dropdown_season_update = browser.find_element_by_xpath('//*[@id="detail_0_team_stats"]/div/div/div/main/div[3]/div[1]/div[1]/div[2]/div/div[2]/div/div[2]')
-    dropdown_season_update.click()
-    time.sleep(2)
-    '''
-
-    header1 = browser.find_element_by_xpath('//*[@id="detail_0_team_stats"]/div/div/div/main/div[3]/div[2]/div/table/tbody/tr[1]')
-    header2 = browser.find_element_by_xpath('//*[@id="detail_0_team_stats"]/div/div/div/main/div[3]/div[2]/div/table/tbody/tr[2]')
-    header3 = browser.find_element_by_xpath('//*[@id="detail_0_team_stats"]/div/div/div/main/div[3]/div[1]/div[1]')
-    header4 = browser.find_element_by_xpath('//*[@id="detail_0_team_stats"]/div/div/div/main/div[3]/div[1]')
-
-    browser.execute_script("arguments[0].style.visibility='hidden'", header1)
-    browser.execute_script("arguments[0].style.visibility='hidden'", header2)
-    browser.execute_script("arguments[0].style.display='none'", header3)
-    browser.execute_script("arguments[0].style.display='none'", header4)
+    path_to_stats()
 
 
-    #Используется, если выгрузка сломалась и нужно начинать с середины
-    global game_counter
-    if game_counter > 12:
-        string_index = 3
-        for string_index in range(string_index, game_counter):
-            transport_element = browser.find_element_by_xpath('//*[@id="detail_0_team_stats"]/div/div/div/main/div[3]/div[2]/div/table/tbody/tr['+str(string_index)+']/td[4]/span/em')
-            browser.execute_script("arguments[0].scrollIntoView();", transport_element)
-            string_index += 1
+    scroller()
 
     while game_counter <= 100:
         game = browser.find_element_by_xpath('//*[@id="detail_0_team_stats"]/div/div/div/main/div[3]/div[2]/div/table/tbody/tr['+str(game_counter)+']')        
@@ -291,71 +238,9 @@ def parser_defending():
 
 def parser_general():
     
-    browser = webdriver.Chrome(executable_path = path_to_driver)
-    browser.get(site)
-    browser.maximize_window()
-    browser.implicitly_wait(10)
+    path_to_stats()
 
-    username = browser.find_element_by_id('login_username')
-    username.send_keys(str(login_username))
-
-    password = browser.find_element_by_id('login_password')
-    password.send_keys(str(login_password))
-    password.send_keys(Keys.RETURN)
-    time.sleep(4)
-
-    country = browser.find_element_by_xpath(country_xpath)
-    country.click()
-    time.sleep(2)
-
-    league = browser.find_element_by_xpath(league_xpath)
-    league.click()
-    time.sleep(2)
-    
-    region = browser.find_element_by_xpath(region_xpath)
-    region.click()
-    time.sleep(2)
-    
-    team = browser.find_element_by_xpath(team_xpath)
-    team.click()
-    time.sleep(2)
-    
-    stats = browser.find_element_by_xpath('//*[@id="detail_0_team_tab_stats"]')
-    stats.click()
-    time.sleep(2)
-
-    dropdown_type = browser.find_element_by_xpath('//*[@id="detail_0_team_stats"]/div/div/div/main/div[3]/div[1]/div[2]/div[1]/div[1]/div')
-    dropdown_type.click()
-
-    dropdown_type_update = browser.find_element_by_xpath('//*[@id="detail_0_team_stats"]/div/div/div/main/div[3]/div[1]/div[2]/div[1]/div[1]/div[2]/div[1]/div[2]')
-    dropdown_type_update.click()
-    time.sleep(2)
-    '''
-    dropdown_season = browser.find_element_by_xpath('//*[@id="detail_0_team_stats"]/div/div/div/main/div[3]/div[1]/div[1]/div[2]/div/div')
-    dropdown_season.click()
-    dropdown_season_update = browser.find_element_by_xpath('//*[@id="detail_0_team_stats"]/div/div/div/main/div[3]/div[1]/div[1]/div[2]/div/div[2]/div/div[2]')
-    dropdown_season_update.click()
-    time.sleep(2)
-    '''
-
-    #Не трогать
-    header1 = browser.find_element_by_xpath('//*[@id="detail_0_team_stats"]/div/div/div/main/div[3]/div[2]/div/table/tbody/tr[1]')
-    header2 = browser.find_element_by_xpath('//*[@id="detail_0_team_stats"]/div/div/div/main/div[3]/div[2]/div/table/tbody/tr[2]')
-    header3 = browser.find_element_by_xpath('//*[@id="detail_0_team_stats"]/div/div/div/main/div[3]/div[1]/div[1]')
-    header4 = browser.find_element_by_xpath('//*[@id="detail_0_team_stats"]/div/div/div/main/div[3]/div[1]')
-    #Не трогать
-    browser.execute_script("arguments[0].style.visibility='hidden'", header1)
-    browser.execute_script("arguments[0].style.visibility='hidden'", header2)
-    browser.execute_script("arguments[0].style.display='none'", header3)
-    browser.execute_script("arguments[0].style.display='none'", header4)
-
-    global game_counter
-    if game_counter > 12:
-        string_index = 3
-        for i in range(game_counter):
-            transport_element = browser.find_element_by_xpath('//*[@id="detail_0_team_stats"]/div/div/div/main/div[3]/div[2]/div/table/tbody/tr['+str(string_index)+']/td[4]/span/em')
-            browser.execute_script("arguments[0].scrollIntoView();", transport_element)
-            string_index += 1
+    scroller()
 
 
     while game_counter <= 100:
@@ -405,83 +290,10 @@ def parser_general():
         
 def parser_passes():
     
-    browser = webdriver.Chrome(executable_path = path_to_driver)
-    browser.get(site)
-    browser.maximize_window()
-    browser.implicitly_wait(10)
-    
-    username = browser.find_element_by_id('login_username')
-    username.send_keys(str(login_username)) #Ввести свой логин
-
-    password = browser.find_element_by_id('login_password')
-    password.send_keys(str(login_password)) #Ввести свой пароль
-    password.send_keys(Keys.RETURN)
-    time.sleep(5)
-
-    action = webdriver.ActionChains(browser)
-
-    #Указать Xpath страны
-    
-    country = browser.find_element_by_xpath(country_xpath)
-    action.move_to_element(country)
-    country.click()
-    time.sleep(2)
-
-    #Указать Xpath лиги
-    league = browser.find_element_by_xpath(league_xpath)
-    league.click()
-    time.sleep(2)
-    
-    region = browser.find_element_by_xpath(region_xpath)
-    region.click()
-    time.sleep(2)
-    
-    #Указать Xpath команды
-    team = browser.find_element_by_xpath(team_xpath)
-    team.click()
-    time.sleep(2)
-    
-    #Не трогать
-    stats = browser.find_element_by_xpath('//*[@id="detail_0_team_tab_stats"]')
-    stats.click()
-    time.sleep(2)
-    #Не трогать
-    dropdown_type = browser.find_element_by_xpath('//*[@id="detail_0_team_stats"]/div/div/div/main/div[3]/div[1]/div[2]/div[1]/div[1]/div')
-    dropdown_type.click()
-    #Не трогать
-    dropdown_type_update = browser.find_element_by_xpath('//*[@id="detail_0_team_stats"]/div/div/div/main/div[3]/div[1]/div[2]/div[1]/div[1]/div[2]/div[1]/div[5]')
-    dropdown_type_update.click()
-    time.sleep(2)
-    '''
-    #Не трогать
-    dropdown_season = browser.find_element_by_xpath('//*[@id="detail_0_team_stats"]/div/div/div/main/div[3]/div[1]/div[1]/div[2]/div/div')
-    dropdown_season.click()
-    #Последний тег этой строки изменяет сезон (руками поменять цифу в последнем div)
-    dropdown_season_update = browser.find_element_by_xpath('//*[@id="detail_0_team_stats"]/div/div/div/main/div[3]/div[1]/div[1]/div[2]/div/div[2]/div/div[2]')
-    dropdown_season_update.click()
-    time.sleep(2)
-    '''
-
-    #Не трогать
-    header1 = browser.find_element_by_xpath('//*[@id="detail_0_team_stats"]/div/div/div/main/div[3]/div[2]/div/table/tbody/tr[1]')
-    header2 = browser.find_element_by_xpath('//*[@id="detail_0_team_stats"]/div/div/div/main/div[3]/div[2]/div/table/tbody/tr[2]')
-    header3 = browser.find_element_by_xpath('//*[@id="detail_0_team_stats"]/div/div/div/main/div[3]/div[1]/div[1]')
-    header4 = browser.find_element_by_xpath('//*[@id="detail_0_team_stats"]/div/div/div/main/div[3]/div[1]')
-    #Не трогать
-    browser.execute_script("arguments[0].style.visibility='hidden'", header1)
-    browser.execute_script("arguments[0].style.visibility='hidden'", header2)
-    browser.execute_script("arguments[0].style.display='none'", header3)
-    browser.execute_script("arguments[0].style.display='none'", header4)
+   path_to_stats()
 
 
-    #Используется, если выгрузка сломалась и нужно начинать с середины
-    global game_counter
-    if game_counter > 12:
-        string_index = 3
-        for string_index in range(string_index, game_counter):
-            transport_element = browser.find_element_by_xpath('//*[@id="detail_0_team_stats"]/div/div/div/main/div[3]/div[2]/div/table/tbody/tr['+str(string_index)+']/td[4]/span/em')
-            browser.execute_script("arguments[0].scrollIntoView();", transport_element)
-            string_index += 1
+    scroller()
 
 
     while game_counter <= 100:
