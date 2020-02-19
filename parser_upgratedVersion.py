@@ -290,7 +290,7 @@ def parser_general():
         
 def parser_passes():
     
-   path_to_stats()
+    path_to_stats()
 
 
     scroller()
