@@ -35,6 +35,5 @@ for filename in all_files:
             df['Position'][index] = max_pos
             
     li.append(df)
-print(li)  
 frame = pd.concat(li, axis=0, ignore_index=True)
 frame.to_csv('/home/gleb/Desktop/result/payers_roles_per_mathces.csv', index=False)  
