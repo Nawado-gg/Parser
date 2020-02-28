@@ -1,115 +1,40 @@
-import selenium
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.action_chains import ActionChains
-import time
 import pandas as pd
-import numpy as np
+import glob
+import operator
 
-
-global login_username
-login_username = 'bi.3.2015@yandex.ru'
-global login_password
-login_password = 'bld1997'
-#Указать путь к Хром драйверу на вашем компе
-
-path_to_driver = r'/usr/bin/chromedriver'
-
-site = 'https://platform.wyscout.com/app/?'
-
-#Указать номер страны (Россия = 69)
-country_id = 70
-country_xpath = '//*[@id="detail_0_home_navy"]/div[1]/div/div['+ str(country_id) +']/div/div[1]'
-
-league_id = 2
-league_xpath = '//*[@id="detail_0_area_navy_0"]/div/div/div['+ str(league_id) +']/div/div[1]'
-
-region_id = 1 #Могут быть от 1 до 5
-region_xpath = '//*[@id="detail_0_competition_navy_0"]/div[1]/div/div['+ str(region_id) +']/div/div[1]/span'
-
-#Указать номер команды по WyScout
-team_id = 2 #Начинается с 2-х для FNL
-team_xpath = '//*[@id="detail_0_competition_navy_1"]/div[1]/div/div['+ str(team_id) + ']/div/div[1]/img'
-
-path_to_save_dir = r'/home/gleb/Desktop/parser/Mordovia/attacking/'
-
-#Переменные парсера
-
-global game_counter
-game_counter = 3
-
-
-
-
-
-def path_to_stats():
-    global browser
-    global action
-    browser = webdriver.Chrome(executable_path = path_to_driver)
-    action = webdriver.ActionChains(browser)
-    browser.get(site)
-    browser.maximize_window()
-    browser.implicitly_wait(10)
-
-    username = browser.find_element_by_id('login_username')
-    username.send_keys(str(login_username))
-
-    password = browser.find_element_by_id('login_password')
-    password.send_keys(str(login_password))
-    password.send_keys(Keys.RETURN)
-    time.sleep(4)
+path = r'/home/gleb/Desktop/player position/Player stats' 
+all_files = glob.glob(path + "/*.xlsx")
+li = []
+#Определение основной роли и проставление ее по пустым и множественным полям
+for filename in all_files:
+    #ebal_rot_excelya = open(filename, 'rb')
+    df = pd.read_excel(filename, index_col=None, header=0)
+    df = df[['Match', 'Date', 'Position']]
+    df['player'] = filename.split('/')[-1].replace('.xlsx', '').replace('Player stats ', '')
     
-    country = browser.find_element_by_xpath(country_xpath)
-    country.click()
-    time.sleep(2)
+    counter_pos = {}
+    for i, r in df.iterrows():
+        if type(df['Position'][i]) == list:
+            for pos in df['Position'][i]:
+                if pos not in counter_pos:
+                    counter_pos[pos] = 1
+                else:
+                    counter_pos[pos] += 1
+        else:
+            if df['Position'][i] not in counter_pos:
+                counter_pos[df['Position'][i]] = 1
+            else:
+                counter_pos[df['Position'][i]] += 1
+    try:
+        max_pos = max(counter_pos.items(), key=operator.itemgetter(1))[0]
+    except:
+        max_pos = 'No data'
     
-    league = browser.find_element_by_xpath(league_xpath)
-    league.click()
-    time.sleep(2)
-
-    
-def parser():
-    team_counter = 1
-    team_count = len(browser.find_elements_by_xpath('//*[@id="detail_0_competition_navy_0"]/div[1]/div/div'))
-    
-    while team_counter <= team_count:
-        team = browser.find_element_by_xpath('//*[@id="detail_0_competition_navy_0"]/div[1]/div/div[' + str(team_counter) + ']/div/div[1]/img')
-        team.click()
-        time.sleep(2)
-        
-
-        player_counter = 2
-        error_count = 0
-        while True:
+    for index, row in df.iterrows():
+        if df['Position'][index] == 0 or ',' in df['Position'][index]:
+            df['Position'][index] = max_pos
             
-            try:
-                player = browser.find_element_by_xpath('//*[@id="detail_0_team_navy"]/div[1]/div/div[' + str(player_counter) +']')
-                player.click()
-                
-                stats = browser.find_element_by_xpath('//*[@id="detail_0_player_tab_stats"]/a/span/span')
-                
-                stats.click()
-                
-                export = browser.find_element_by_xpath('//*[@id="detail_0_player_stats"]/div/div/div/main/div[3]/div[1]/div[2]/a')
-                export.click()
-                time.sleep(2)
-                
-                
-                browser.back()
-            except:
-                error_count += 1
-            player_counter += 1
-            
-            if error_count >= 4:
-                break
-
-        
-        browser.back()
-        team_counter += 1
-        
-        
-def main():
-    path_to_stats()
-    parser()
-    
-main()
+    li.append(df)
+print(li)  
+frame = pd.concat(li, axis=0, ignore_index=True)
+frame.to_csv('/home/gleb/Desktop/result/payers_roles_per_mathces.csv', index=False)  
